@@ -1,0 +1,24 @@
+# --- runtime state, never commit ---
+# installed extension APKs/JARs, prefs, SQLite (favourites, history), logs
+data/
+# Brave profile used by the --app window (cookies, sessions)
+window-profile/
+# bundled JDK (~526 MB)
+tools/
+# Suwayomi jar is 174 MiB, over GitHub's 100 MiB file limit
+app/suwayomi.jar
+
+# JVM crash dumps
+hs_err_pid*.log
+replay_pid*.log
+
+# local build workspace (nested clones, gradle cache, build/ outputs)
+_work/
+build/
+.gradle/
+.idea/
+*.iml
+
+# OS / editor noise
+Thumbs.db
+desktop.ini

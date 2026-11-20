@@ -1,0 +1,3 @@
+@echo off
+powershell -NoProfile -Command "$k=0; Get-CimInstance Win32_Process -Filter \"Name='powershell.exe'\" | Where-Object { $_.CommandLine -like '*watchdog.ps1*' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue; $k++ }; @(8790,4567) + (8791..8800) | ForEach-Object { $c = Get-NetTCPConnection -LocalPort $_ -State Listen -ErrorAction SilentlyContinue; if ($c) { Stop-Process -Id $c.OwningProcess -Force -ErrorAction SilentlyContinue; $k++ } }; if ($k -eq 0) { 'Aniyomi Desktop is not running.' } else { 'Aniyomi Desktop stopped.' }"
+timeout /t 2 /nobreak >nul

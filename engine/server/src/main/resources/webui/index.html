@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aniyomi</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/style.css?v=20261120c">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand" onclick="goHome()"><img class="brand-logo" src="/favicon.svg" alt="Aniyomi">Aniyomi</div>
+  <nav class="main-nav">
+    <button class="nav-link" data-nav="home" onclick="goHome()" data-i18n="nav.home">Home</button>
+    <button class="nav-link" data-nav="manga" onclick="goManga()" data-i18n="nav.manga">Manga</button>
+    <button class="nav-link" data-nav="anime" onclick="goBrowse('anime')" data-i18n="nav.anime">Anime</button>
+    <button class="nav-link" data-nav="favorites" onclick="showFavorites()" data-i18n="nav.favorites">Favorites</button>
+    <a class="nav-link" href="/docs.html" data-i18n="docs.title">Docs</a>
+  </nav>
+  <div class="top-search">
+    <input id="globalSearch" type="text" placeholder="Search..." onkeydown="if(event.key==='Enter')globalSearchGo()">
+  </div>
+  <div class="top-actions">
+    <button class="icon-btn" title="Settings" onclick="openSettings()">⚙</button>
+    <select id="langSelect" onchange="setLang(this.value)" title="Language">
+      <option value="en">English</option>
+      <option value="es">Español</option>
+      <option value="fr">Français</option>
+    </select>
+    <button class="btn-primary" onclick="openExtensions()" data-i18n="nav.extensions">＋ Extensions</button>
+  </div>
+</header>
+
+<div class="app">
+  <aside class="sidebar" id="sources">
+    <div class="sidebar-filters">
+      <input id="srcFilter" type="text" placeholder="Filter sources..." oninput="renderSources()">
+      <div class="type-tabs">
+        <button class="type-tab active" data-type="all" onclick="setTypeFilter('all')" data-i18n="nav.all">All</button>
+        <button class="type-tab" data-type="manga" onclick="setTypeFilter('manga')" data-i18n="nav.manga">Manga</button>
+        <button class="type-tab" data-type="anime" onclick="setTypeFilter('anime')" data-i18n="nav.anime">Anime</button>
+      </div>
+    </div>
+    <div class="sidebar-list" id="srcList"></div>
+  </aside>
+
+  <main id="content" class="content">
+    <div class="empty" id="empty">
+      <div class="empty-logo">miwayomi</div>
+      <h2 data-i18n="empty.title">Select a source</h2>
+      <p data-i18n="empty.text">Choose a manga or anime source from the list to explore its catalog.</p>
+    </div>
+  </main>
+</div>
+
+<div id="mangaReader" class="manga-reader hidden">
+  <div class="mr-top">
+    <button class="icon-btn" onclick="closeMangaReader()">←</button>
+    <span id="mrTitle">Reader</span>
+    <span class="mr-count" id="mrCount"></span>
+    <button class="icon-btn" onclick="mrFullscreen()" title="Fullscreen">⛶</button>
+  </div>
+  <div class="mr-pages" id="mrPages"></div>
+</div>
+
+<div id="modal" class="modal hidden" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box" id="modalBox"></div>
+</div>
+
+<script src="/vendor/hls.min.js"></script>
+<script src="/vendor/dash.all.min.js"></script>
+<script src="/player.js"></script>
+<script src="/app.js"></script>
+</body>
+</html>
