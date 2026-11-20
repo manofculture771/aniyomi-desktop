@@ -52,7 +52,7 @@ def start_server():
     env["JAVA_HOME"] = os.path.dirname(os.path.dirname(JDK))
     out = open(SERVERLOG, "ab")
     proc = subprocess.Popen(
-        [JDK, "-Xverify:none", "-jar", JAR, "--port", str(PORT), "--data", DATA, "--no-open", "-f", ""],
+        [JDK, "-Xverify:none", "-Xint", "-jar", JAR, "--port", str(PORT), "--data", DATA, "--no-open", "-f", ""],
         stdout=out, stderr=subprocess.STDOUT, env=env, cwd=ROOT,
         creationflags=getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0),
     )
