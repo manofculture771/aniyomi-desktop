@@ -51,7 +51,11 @@ while ($true) {
                 -RedirectStandardOutput (Join-Path $data "engine.log") `
                 -RedirectStandardError (Join-Path $data "engine.err.log") `
                 -ArgumentList @(
-                "-Xverify:none"; "-jar"; "$jar"; "--port"; "$Port";
+                # -Xverify:none: dex2jar leaves missing stack-map frames, the verifier
+                # rejects the class. -Xint: with JIT on, C1 still builds oop maps for
+                # those methods and hard-kills the process (generateOopMap). Interpreted
+                # execution is a few % slower on extension code and cannot crash that way.
+                "-Xverify:none"; "-Xint"; "-jar"; "$jar"; "--port"; "$Port";
                 "--data"; "$data"; "--no-open"; "-f"; '""'
             )
         } catch {

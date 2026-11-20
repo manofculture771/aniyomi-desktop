@@ -19,9 +19,9 @@ Aniyomi.lnk           -> desktop shortcut to the above
 **State of this build:** two engines, one window.
 
 - **Anime** (`127.0.0.1:8790`, miwayomi): 373 Aniyomi extensions collected from 12
-  repos, 502 installed incl. the NSFW sets; 486 sources were tested end to end
-  and **82 play** (catalogue → episodes → real video URL). The rest are dead
-  hosts, Cloudflare walls, or extensions that need a real `WebView` for a token.
+  repos; 486 sources were tested end to end and **82 play** (catalogue →
+  episodes → real video URL). The rest are dead hosts, HTTP errors, broken
+  parsers, or extensions that need a real `WebView` for a token.
   mpv hand-off carries the extension's subtitles.
 - **Manga** (`127.0.0.1:4567`, Suwayomi): **the miwayomi engine cannot run
   Tachiyomi manga extensions** — dex→jar conversion mangles their typed arrays
@@ -105,24 +105,32 @@ Custom player, not browser chrome:
   headers/Referer still work — the desktop-app feel without losing HLS support
 - subtitles come from the extension's `subtitleTracks`, proxied same-origin
 
-## Why `-Xverify:none`
+## Why `-Xverify:none` and `-Xint`
 
 `dex2jar` output for some extension classes has missing stack-map frames, and
 the JVM verifier rejects them (`VerifyError: Expecting a stackmap frame...`).
-The launcher therefore starts the JVM with `-Xverify:none`. The alternative is
-recomputing frames for every class at install time — not worth the risk for
-third-party bytecode that is already untrusted either way.
+The launcher therefore starts the JVM with `-Xverify:none`. That skips the
+verifier, but with the JIT on the C1 compiler still builds oop maps for those
+same methods and **hard-crashes the whole process**
+(`Internal Error (generateOopMap.cpp)`), which is why the engine also runs
+`-Xint`: interpreted extension code has no compile step, so no crash. Excluding
+just the extension packages from compilation (`-XX:CompileCommand=exclude,…`)
+was tried first and did not hold — the crash came back on `AnimeSalt.getVideoList`.
 
 ## Known limits
 
-- **The JVM can still die on a bad extension.** `dex2jar` sometimes emits a
-  method HotSpot refuses to compile (`Illegal class file … Try running with
-  -Xverify:all`), which is a native crash, not an exception. Four extensions did
-  that during testing and were removed; the watchdog restarts the engine in
-  ~15 s if another one turns up, and the page needs a refresh (Ctrl+R).
-- **Cloudflare-protected sources** (Manganato-class sites) need FlareSolverr on
-  `127.0.0.1:8191`; without it those sources answer with a challenge error.
-  The launcher runs with FlareSolverr disabled (`-f ""`).
+- **The JVM used to die on a bad extension — it no longer does.** `dex2jar`
+  sometimes emits a method HotSpot refuses to compile (`Illegal class file …
+  Try running with -Xverify:all`), and with JIT on the C1 compiler hard-kills the
+  process when it builds that method's oop map. The engine now runs `-Xint`, so
+  extension code is interpreted and that crash path is gone. Cost: extension
+  parsing is slower (a video resolve can take 30 s on a heavy source), engine
+  code and HTTP are unaffected.
+- **Cloudflare is not the blocker it looks like.** The launcher runs with
+  FlareSolverr off (`-f ""`), and a re-check of 486 tested sources found **no**
+  failure that was a Cloudflare challenge — the failures were dead hosts, HTTP
+  5xx, broken parsers and JVM crashes. FlareSolverr stays off until a source
+  actually needs it.
 - 404 of the 486 sources tested failed: dead hosts, unreachable networks,
   Cloudflare, or extensions that need a real `WebView` to extract a token (no
   browser inside a headless JVM). They were uninstalled; `data/source-tests.jsonl`
