@@ -1,0 +1,12 @@
+# never let git touch binary payloads (a rewritten 100 MB jar is a corrupt jar)
+*.jar binary
+*.apk binary
+*.png binary
+*.ico binary
+*.ttf binary
+*.woff2 binary
+
+# the launchers and scripts stay CRLF on Windows
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+*.sh text eol=lf
